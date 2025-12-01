@@ -1,0 +1,58 @@
+</body>
+</html>
+=======
+    <script src="script.js"></script>
+    <script>
+        // Load contact info from localStorage
+        function loadContactInfo() {
+            const contactInfo = JSON.parse(localStorage.getItem('contactInfo') || '{}');
+            const contactInfoSection = document.getElementById('contactInfoSection');
+
+            let html = '';
+
+            if (contactInfo.address) {
+                html += `
+                    <div class="contact-info-item">
+                        <h3>📍 Adresse</h3>
+                        <p>${contactInfo.address.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            }
+
+            if (contactInfo.phone) {
+                html += `
+                    <div class="contact-info-item">
+                        <h3>📞 Téléphone</h3>
+                        <p>${contactInfo.phone.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            }
+
+            if (contactInfo.email) {
+                html += `
+                    <div class="contact-info-item">
+                        <h3>✉️ Email</h3>
+                        <p>${contactInfo.email.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            }
+
+            if (contactInfo.hours) {
+                html += `
+                    <div class="contact-info-item">
+                        <h3>🕐 Horaires d'Ouverture</h3>
+                        <p>${contactInfo.hours.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            }
+
+            contactInfoSection.innerHTML = html;
+        }
+
+        // Load contact info when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadContactInfo();
+        });
+    </script>
+</body>
+</html>

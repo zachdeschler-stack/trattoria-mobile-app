@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Trattoria Roma - Restaurant Italien</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <div class="logo">
+                    <h1>La Trattoria Roma</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#accueil">Accueil</a></li>
+                    <li><a href="menu.html">Menu</a></li>
+                    <li><a href="reservation.html">Réservation</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+                <div class="nav-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="accueil" class="hero">
+            <div class="hero-content">
+                <h2>Authenticité Italienne</h2>
+                <p>Découvrez les saveurs traditionnelles de l'Italie dans une ambiance chaleureuse et conviviale.</p>
+                <a href="reservation.html" class="btn-primary">Réserver une table</a>
+            </div>
+            <div class="hero-image">
+                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Restaurant italien">
+            </div>
+        </section>
+
+        <section class="about">
+            <div class="container">
+                <h2>Notre Histoire</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <p>Depuis 1995, La Trattoria Roma perpétue la tradition culinaire italienne avec passion. Notre chef, originaire de Rome, vous propose des plats authentiques préparés avec des ingrédients frais et de qualité.</p>
+                        <p>Notre restaurant vous accueille dans une ambiance chaleureuse, parfaite pour un dîner romantique ou une soirée entre amis.</p>
+                    </div>
+                    <div class="about-image">
+                        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600" alt="Cuisine italienne">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="specialties">
+            <div class="container">
+                <h2>Nos Spécialités</h2>
+                <div id="specialtiesGrid" class="specialties-grid">
+                    <!-- Specialties will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <div class="container">
+                <h2>Avis de nos Clients</h2>
+                <div class="testimonials-grid">
+                    <div class="testimonial">
+                        <p>"Une expérience culinaire exceptionnelle. Les pâtes étaient divines et le service impeccable."</p>
+                        <cite>- Marie Dupont</cite>
+                    </div>
+                    <div class="testimonial">
+                        <p>"Ambiance chaleureuse et plats authentiques. Je recommande vivement !"</p>
+                        <cite>- Jean Martin</cite>
+                    </div>
+                    <div class="testimonial">
+                        <p>"Le meilleur restaurant italien de la ville. Service attentionné et nourriture de qualité."</p>
+                        <cite>- Sophie Leroy</cite>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <p>📞 01 23 45 67 89</p>
+                    <p>✉️ info@trattoriaroma.fr</p>
+                    <p>📍 123 Rue de la République, 75001 Paris</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Horaires</h3>
+                    <p>Lundi - Vendredi: 12h - 14h30, 19h - 22h30</p>
+                    <p>Samedi - Dimanche: 12h - 15h, 19h - 23h</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Suivez-nous</h3>
+                    <div class="social-links">
+                        <a href="#">Facebook</a>
+                        <a href="#">Instagram</a>
+                        <a href="#">Twitter</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 La Trattoria Roma. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="chatbot" class="chatbot">
+        <div class="chatbot-header">
+            <span>🤖 Assistant</span>
+            <button id="chatbot-close">&times;</button>
+        </div>
+        <div id="chatbot-messages" class="chatbot-messages"></div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbot-input" placeholder="Posez votre question...">
+            <button id="chatbot-send">Envoyer</button>
+        </div>
+    </div>
+
+    <button id="chatbot-toggle" class="chatbot-toggle">💬</button>
+
+    <script src="script.js"></script>
+    <script>
+        // Load specialties from localStorage
+        function loadSpecialties() {
+            const specialties = JSON.parse(localStorage.getItem('specialties') || '[]');
+            const specialtiesGrid = document.getElementById('specialtiesGrid');
+
+            if (specialties.length === 0) {
+                specialtiesGrid.innerHTML = '<p style="text-align: center; padding: 2rem;">Aucune spécialité disponible pour le moment.</p>';
+                return;
+            }
+
+            let html = '';
+            specialties.forEach(specialty => {
+                html += `
+                    <div class="specialty-card">
+                        <img src="${specialty.image}" alt="${specialty.name}">
+                        <h3>${specialty.name}</h3>
+                        <p>${specialty.description}</p>
+                    </div>
+                `;
+            });
+
+            specialtiesGrid.innerHTML = html;
+        }
+
+        // Load specialties when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSpecialties();
+        });
+    </script>
+</body>
+</html>

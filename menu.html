@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - La Trattoria Roma</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <div class="logo">
+                    <h1>La Trattoria Roma</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="menu.html">Menu</a></li>
+                    <li><a href="reservation.html">Réservation</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+                <div class="nav-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="menu-hero">
+            <div class="container">
+                <h1>Notre Menu</h1>
+                <p>Découvrez nos plats italiens authentiques, préparés avec passion</p>
+            </div>
+        </section>
+
+        <div id="menuContent">
+            <!-- Menu sections will be loaded here -->
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <p>📞 01 23 45 67 89</p>
+                    <p>✉️ info@trattoriaroma.fr</p>
+                    <p>📍 123 Rue de la République, 75001 Paris</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Horaires</h3>
+                    <p>Lundi - Vendredi: 12h - 14h30, 19h - 22h30</p>
+                    <p>Samedi - Dimanche: 12h - 15h, 19h - 23h</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Suivez-nous</h3>
+                    <div class="social-links">
+                        <a href="#">Facebook</a>
+                        <a href="#">Instagram</a>
+                        <a href="#">Twitter</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 La Trattoria Roma. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="chatbot" class="chatbot">
+        <div class="chatbot-header">
+            <span>🤖 Assistant</span>
+            <button id="chatbot-close">&times;</button>
+        </div>
+        <div id="chatbot-messages" class="chatbot-messages"></div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbot-input" placeholder="Posez votre question...">
+            <button id="chatbot-send">Envoyer</button>
+        </div>
+    </div>
+
+    <button id="chatbot-toggle" class="chatbot-toggle">💬</button>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+        <div id="lightbox-caption" class="lightbox-caption"></div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Load menu from localStorage
+        function loadMenu() {
+            const menuItems = JSON.parse(localStorage.getItem('menuItems') || '{}');
+            const menuContent = document.getElementById('menuContent');
+
+            const categories = {
+                antipasti: 'Antipasti',
+                pates: 'Pâtes Fraîches',
+                pizzas: 'Pizzas',
+                desserts: 'Desserts'
+            };
+
+            let html = '';
+
+            for (const [categoryKey, categoryName] of Object.entries(categories)) {
+                const items = menuItems[categoryKey] || [];
+
+                if (items.length > 0) {
+                    html += `
+                        <section class="menu-section">
+                            <div class="container">
+                                <h2>${categoryName}</h2>
+                                <div class="menu-grid">
+                    `;
+
+                    items.forEach(item => {
+                        html += `
+                            <div class="menu-item">
+                                <div class="menu-item-content">
+                                    <h3>${item.name}</h3>
+                                    <p>${item.description}</p>
+                                    <span class="price">${item.price}</span>
+                                </div>
+                                <img src="${item.image}" alt="${item.name}">
+                            </div>
+                        `;
+                    });
+
+                    html += `
+                                </div>
+                            </div>
+                        </section>
+                    `;
+                }
+            }
+
+            menuContent.innerHTML = html;
+
+            // Re-initialize lightbox after loading menu
+            initializeLightbox();
+        }
+
+        // Lightbox functionality for menu images
+        function initializeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxCaption = document.getElementById('lightbox-caption');
+            const lightboxClose = document.querySelector('.lightbox-close');
+
+            // Remove existing event listeners
+            document.querySelectorAll('.menu-item img').forEach(img => {
+                img.replaceWith(img.cloneNode(true));
+            });
+
+            // Add click event to all menu images
+            document.querySelectorAll('.menu-item img').forEach(img => {
+                img.addEventListener('click', function() {
+                    lightbox.style.display = 'block';
+                    lightboxImg.src = this.src.replace('w=300', 'w=800'); // Larger image
+                    const itemName = this.parentElement.querySelector('h3').textContent;
+                    const itemDesc = this.parentElement.querySelector('p').textContent;
+                    lightboxCaption.innerHTML = `<strong>${itemName}</strong><br>${itemDesc}`;
+                });
+            });
+
+            // Close lightbox when clicking the close button
+            lightboxClose.addEventListener('click', function() {
+                lightbox.style.display = 'none';
+            });
+
+            // Close lightbox when clicking outside the image
+            lightbox.addEventListener('click', function(e) {
+                if (e.target === lightbox) {
+                    lightbox.style.display = 'none';
+                }
+            });
+
+            // Close lightbox with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && lightbox.style.display === 'block') {
+                    lightbox.style.display = 'none';
+                }
+            });
+        }
+
+        // Load menu when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMenu();
+        });
+    </script>
+</body>
+</html>

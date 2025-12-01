@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réservation - La Trattoria Roma</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <div class="logo">
+                    <h1>La Trattoria Roma</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="menu.html">Menu</a></li>
+                    <li><a href="reservation.html">Réservation</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+                <div class="nav-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="reservation-hero">
+            <div class="container">
+                <h1>Réserver une Table</h1>
+                <p>Réservez votre table pour une expérience culinaire inoubliable</p>
+            </div>
+        </section>
+
+        <section class="reservation-content">
+            <div class="container">
+                <div class="reservation-grid">
+                    <div class="reservation-form-section">
+                        <h2>Formulaire de Réservation</h2>
+                        <form id="reservationForm">
+                            <div class="form-group">
+                                <label for="firstName">Prénom *</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="lastName">Nom *</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Téléphone *</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="date">Date *</label>
+                                <input type="date" id="date" name="date" required min="<?php echo date('Y-m-d'); ?>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="time">Heure *</label>
+                                <select id="time" name="time" required>
+                                    <option value="">Choisir une heure</option>
+                                    <option value="12:00">12:00</option>
+                                    <option value="12:30">12:30</option>
+                                    <option value="13:00">13:00</option>
+                                    <option value="13:30">13:30</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="19:00">19:00</option>
+                                    <option value="19:30">19:30</option>
+                                    <option value="20:00">20:00</option>
+                                    <option value="20:30">20:30</option>
+                                    <option value="21:00">21:00</option>
+                                    <option value="21:30">21:30</option>
+                                    <option value="22:00">22:00</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="guests">Nombre de Personnes *</label>
+                                <select id="guests" name="guests" required>
+                                    <option value="">Choisir le nombre</option>
+                                    <option value="1">1 personne</option>
+                                    <option value="2">2 personnes</option>
+                                    <option value="3">3 personnes</option>
+                                    <option value="4">4 personnes</option>
+                                    <option value="5">5 personnes</option>
+                                    <option value="6">6 personnes</option>
+                                    <option value="7">7 personnes</option>
+                                    <option value="8">8 personnes</option>
+                                    <option value="9">9 personnes</option>
+                                    <option value="10">10 personnes</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="specialRequests">Demandes Spéciales</label>
+                                <textarea id="specialRequests" name="specialRequests" rows="4" placeholder="Allergies, occasions spéciales, etc."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="newsletter" name="newsletter">
+                                    Je souhaite recevoir la newsletter avec les offres spéciales
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn-primary">Confirmer la Réservation</button>
+                        </form>
+                    </div>
+
+                    <div class="reservation-info-section">
+                        <h2>Informations Importantes</h2>
+
+                        <div class="info-item">
+                            <h3>🕐 Horaires de Réservation</h3>
+                            <p><strong>Déjeuner:</strong> 12h - 14h30</p>
+                            <p><strong>Dîner:</strong> 19h - 22h30</p>
+                            <p>Les réservations sont possibles jusqu'à 2 heures avant le service.</p>
+                        </div>
+
+                        <div class="info-item">
+                            <h3>📞 Confirmation</h3>
+                            <p>Vous recevrez un email de confirmation dans les 24 heures. En cas de non-réception, contactez-nous au 01 23 45 67 89.</p>
+                        </div>
+
+                        <div class="info-item">
+                            <h3>🚫 Annulation</h3>
+                            <p>Les annulations doivent être faites au moins 24 heures à l'avance. Au-delà, des frais peuvent être appliqués.</p>
+                        </div>
+
+                        <div class="info-item">
+                            <h3>🎉 Événements Spéciaux</h3>
+                            <p>Pour les groupes de plus de 8 personnes ou les événements spéciaux, contactez-nous directement.</p>
+                        </div>
+
+                        <div class="info-item">
+                            <h3>💺 Politique des Tables</h3>
+                            <p>Les tables sont réservées pour 2 heures maximum. Au-delà, elles peuvent être réattribuées.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <p>📞 01 23 45 67 89</p>
+                    <p>✉️ info@trattoriaroma.fr</p>
+                    <p>📍 123 Rue de la République, 75001 Paris</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Horaires</h3>
+                    <p>Lundi - Vendredi: 12h - 14h30, 19h - 22h30</p>
+                    <p>Samedi - Dimanche: 12h - 15h, 19h - 23h</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Suivez-nous</h3>
+                    <div class="social-links">
+                        <a href="#">Facebook</a>
+                        <a href="#">Instagram</a>
+                        <a href="#">Twitter</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 La Trattoria Roma. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="chatbot" class="chatbot">
+        <div class="chatbot-header">
+            <span>🤖 Assistant</span>
+            <button id="chatbot-close">&times;</button>
+        </div>
+        <div id="chatbot-messages" class="chatbot-messages"></div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbot-input" placeholder="Posez votre question...">
+            <button id="chatbot-send">Envoyer</button>
+        </div>
+    </div>
+
+    <button id="chatbot-toggle" class="chatbot-toggle">💬</button>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - La Trattoria Roma</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        .admin-login {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+        }
+
+        .login-form {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #8B4513;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .login-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: #8B4513;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .admin-dashboard {
+            display: none;
+            padding: 2rem 0;
+        }
+
+        .admin-nav {
+            background: #f8f8f8;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .admin-nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-nav h2 {
+            color: #8B4513;
+            margin: 0;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .admin-content {
+            padding: 2rem 0;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 2rem;
+        }
+
+        .admin-sidebar {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .admin-sidebar h3 {
+            color: #8B4513;
+            margin-bottom: 1rem;
+        }
+
+        .admin-sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .admin-sidebar li {
+            margin-bottom: 0.5rem;
+        }
+
+        .admin-sidebar a {
+            color: #333;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            display: block;
+            transition: background 0.3s;
+        }
+
+        .admin-sidebar a:hover,
+        .admin-sidebar a.active {
+            background: #8B4513;
+            color: white;
+        }
+
+        .admin-main {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .reservations-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .reservations-table th,
+        .reservations-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .reservations-table th {
+            background: #f8f8f8;
+            font-weight: 600;
+            color: #8B4513;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status.confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-btn {
+            background: #8B4513;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-right: 5px;
+        }
+
+        .action-btn.cancel {
+            background: #dc3545;
+        }
+
+        .calendar-section {
+            margin-top: 2rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .calendar-day {
+            padding: 20px 15px;
+            text-align: center;
+            border: 2px solid #e1e8ed;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+            font-weight: 500;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-day:hover {
+            background: #f8f8f8;
+        }
+
+        .calendar-day.today {
+            background: #8B4513;
+            color: white;
+        }
+
+        .calendar-day.booked {
+            background: #fff3cd;
+        }
+    </style>
+</head>
+<body>
+    <div id="adminLogin" class="admin-login">
+        <div class="login-form">
+            <h2>Administration</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="login-btn">Se Connecter</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="adminDashboard" class="admin-dashboard">
+        <nav class="admin-nav">
+            <div class="container">
+                <h2>Administration - La Trattoria Roma</h2>
+                <button id="logoutBtn" class="logout-btn">Déconnexion</button>
+            </div>
+        </nav>
+
+        <main class="admin-content">
+            <div class="container">
+                <div class="admin-grid">
+                    <aside class="admin-sidebar">
+                        <h3>Menu</h3>
+                        <ul>
+                            <li><a href="#" class="active" data-section="reservations">Réservations</a></li>
+                            <li><a href="#" data-section="calendar">Calendrier</a></li>
+                            <li><a href="#" data-section="menu">Menu</a></li>
+                            <li><a href="#" data-section="specialties">Spécialités</a></li>
+                            <li><a href="#" data-section="contact">Contact</a></li>
+                            <li><a href="#" data-section="settings">Paramètres</a></li>
+                        </ul>
+                    </aside>
+
+                    <section class="admin-main">
+                        <div id="reservationsSection">
+                            <h2>Gestion des Réservations</h2>
+                            <table class="reservations-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Heure</th>
+                                        <th>Nom</th>
+                                        <th>Personnes</th>
+                                        <th>Contact</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reservationsTableBody">
+                                    <!-- Reservations will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="calendarSection" style="display: none;">
+                            <h2>Calendrier des Réservations</h2>
+                            <div class="calendar-section">
+                                <div id="calendar" class="calendar-grid">
+                                    <!-- Calendar will be generated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="menuSection" style="display: none;">
+                            <h2>Gestion du Menu</h2>
+                            <div class="menu-management">
+                                <div class="menu-categories">
+                                    <button class="category-btn active" data-category="antipasti">Antipasti</button>
+                                    <button class="category-btn" data-category="pates">Pâtes</button>
+                                    <button class="category-btn" data-category="pizzas">Pizzas</button>
+                                    <button class="category-btn" data-category="desserts">Desserts</button>
+                                </div>
+                                <div class="menu-items-list" id="menuItemsList">
+                                    <!-- Menu items will be loaded here -->
+                                </div>
+                                <button class="btn-primary" id="addMenuItemBtn">Ajouter un Plat</button>
+                            </div>
+                        </div>
+
+                        <div id="specialtiesSection" style="display: none;">
+                            <h2>Gestion des Spécialités</h2>
+                            <div class="specialties-management">
+                                <div class="specialties-list" id="specialtiesList">
+                                    <!-- Specialties will be loaded here -->
+                                </div>
+                                <button class="btn-primary" id="addSpecialtyBtn">Ajouter une Spécialité</button>
+                            </div>
+                        </div>
+
+                        <div id="contactSection" style="display: none;">
+                            <h2>Gestion des Informations de Contact</h2>
+                            <form id="contactForm">
+                                <div class="form-group">
+                                    <label for="contactAddress">Adresse</label>
+                                    <textarea id="contactAddress" rows="3">123 Rue de la République
+75001 Paris, France</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactPhone">Téléphone</label>
+                                    <input type="text" id="contactPhone" value="01 23 45 67 89">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactEmail">Email</label>
+                                    <input type="email" id="contactEmail" value="info@trattoriaroma.fr">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactHours">Horaires d'Ouverture</label>
+                                    <textarea id="contactHours" rows="4">Lundi - Vendredi: 12h - 14h30, 19h - 22h30
+Samedi - Dimanche: 12h - 15h, 19h - 23h</textarea>
+                                </div>
+                                <button type="submit" class="btn-primary">Sauvegarder</button>
+                            </form>
+                        </div>
+
+                        <div id="settingsSection" style="display: none;">
+                            <h2>Paramètres du Restaurant</h2>
+                            <form id="settingsForm">
+                                <div class="form-group">
+                                    <label for="openingHours">Horaires d'Ouverture</label>
+                                    <textarea id="openingHours" rows="4">Lundi - Vendredi: 12h - 14h30, 19h - 22h30
+Samedi - Dimanche: 12h - 15h, 19h - 23h</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="maxGuests">Nombre Maximum de Couverts</label>
+                                    <input type="number" id="maxGuests" value="50">
+                                </div>
+                                <div class="form-group">
+                                    <label for="reservationAdvance">Délai Minimum de Réservation (heures)</label>
+                                    <input type="number" id="reservationAdvance" value="2">
+                                </div>
+                                <button type="submit" class="btn-primary">Sauvegarder</button>
+                            </form>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
