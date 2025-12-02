@@ -2,12 +2,12 @@
   "name": "La Trattoria Roma",
   "short_name": "Trattoria",
   "description": "Application mobile pour réserver une table à La Trattoria Roma avec accès hors ligne",
-  "start_url": "https://zachdeschler-stack.github.io/trattoria-mobile-app/mobile-app.html",
+  "start_url": "/trattoria-mobile-app/mobile-app.html",
   "display": "standalone",
   "background_color": "#f8f8f8",
   "theme_color": "#8B4513",
   "orientation": "portrait-primary",
-  "scope": "/",
+  "scope": "/trattoria-mobile-app/",
   "icons": [
     {
       "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍝</text></svg>",
