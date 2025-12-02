@@ -9,6 +9,33 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBBpCMxDQZH9ZPX3D-e-wE2Ik8W8KgyKZg",
+            authDomain: "trattoria-mobile-app.firebaseapp.com",
+            projectId: "trattoria-mobile-app",
+            storageBucket: "trattoria-mobile-app.firebasestorage.app",
+            messagingSenderId: "626471039218",
+            appId: "1:626471039218:web:55a24bc71d25f44d8c206b"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        window.db = getFirestore(app);
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.serverTimestamp = serverTimestamp;
+    </script>
 </head>
 <body>
     <header class="app-header">
