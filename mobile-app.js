@@ -36,6 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
     loadMenu();
     setupNavigation();
     setupReservationForm();
+    setupAdminTabs();
+    setupAddDishForm();
+    loadAdminReservations();
+    loadCurrentMenu();
 });
 
 // Navigation
@@ -285,6 +289,251 @@ function translateStatus(status) {
         case 'pending': return 'En attente';
         case 'cancelled': return 'Annulée';
         default: return status;
+    }
+}
+
+// Admin Tab Switching
+function setupAdminTabs() {
+    const adminTabBtns = document.querySelectorAll('.admin-tab-btn');
+
+    adminTabBtns.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            adminTabBtns.forEach(btn => btn.classList.remove('active'));
+
+            // Add active class to clicked button
+            button.classList.add('active');
+
+            // Hide all admin tab contents
+            document.querySelectorAll('.admin-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Show selected admin tab content
+            const tabId = button.getAttribute('data-admin-tab') + '-tab';
+            document.getElementById('admin-' + tabId).classList.add('active');
+        });
+    });
+}
+
+// Load Admin Reservations
+async function loadAdminReservations() {
+    const container = document.getElementById('admin-reservations-container');
+
+    if (!window.db) {
+        container.innerHTML = '<p>Connexion Firebase requise pour gérer les réservations.</p>';
+        return;
+    }
+
+    try {
+        const querySnapshot = await window.getDocs(window.collection(window.db, 'reservations'));
+        const reservations = [];
+
+        querySnapshot.forEach((doc) => {
+            reservations.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        // Sort by timestamp (most recent first)
+        reservations.sort((a, b) => b.timestamp - a.timestamp);
+
+        if (reservations.length === 0) {
+            container.innerHTML = '<p>Aucune réservation trouvée.</p>';
+            return;
+        }
+
+        container.innerHTML = '';
+
+        reservations.forEach(reservation => {
+            const reservationDiv = document.createElement('div');
+            reservationDiv.className = 'admin-reservation-item';
+
+            const statusClass = reservation.status === 'confirmed' ? 'confirmed' :
+                               reservation.status === 'cancelled' ? 'cancelled' : 'pending';
+
+            reservationDiv.innerHTML = `
+                <div class="reservation-header">
+                    <h4>${reservation.firstName} ${reservation.lastName}</h4>
+                    <span class="status-badge ${statusClass}">${translateStatus(reservation.status)}</span>
+                </div>
+                <div class="reservation-details">
+                    <p><strong>Date:</strong> ${formatDate(reservation.date)}</p>
+                    <p><strong>Heure:</strong> ${reservation.time}</p>
+                    <p><strong>Personnes:</strong> ${reservation.guests}</p>
+                    <p><strong>Email:</strong> ${reservation.email}</p>
+                    <p><strong>Téléphone:</strong> ${reservation.phone}</p>
+                    ${reservation.specialRequests ? `<p><strong>Demandes:</strong> ${reservation.specialRequests}</p>` : ''}
+                </div>
+                <div class="reservation-actions">
+                    ${reservation.status === 'pending' ? `
+                        <button class="btn-accept" onclick="updateReservationStatus('${reservation.id}', 'confirmed')">Accepter</button>
+                        <button class="btn-reject" onclick="updateReservationStatus('${reservation.id}', 'cancelled')">Refuser</button>
+                    ` : ''}
+                    <button class="btn-delete" onclick="deleteReservation('${reservation.id}')">Supprimer</button>
+                </div>
+            `;
+
+            container.appendChild(reservationDiv);
+        });
+
+    } catch (error) {
+        console.error('Error loading admin reservations:', error);
+        container.innerHTML = '<p>Erreur lors du chargement des réservations.</p>';
+    }
+}
+
+// Update Reservation Status
+async function updateReservationStatus(reservationId, status) {
+    if (!window.db) return;
+
+    try {
+        await window.updateDoc(window.doc(window.db, 'reservations', reservationId), {
+            status: status,
+            updatedAt: window.serverTimestamp()
+        });
+
+        alert(`Réservation ${status === 'confirmed' ? 'acceptée' : 'refusée'} avec succès !`);
+        loadAdminReservations(); // Reload the list
+
+    } catch (error) {
+        console.error('Error updating reservation:', error);
+        alert('Erreur lors de la mise à jour de la réservation.');
+    }
+}
+
+// Delete Reservation
+async function deleteReservation(reservationId) {
+    if (!window.db) return;
+
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?')) return;
+
+    try {
+        await window.deleteDoc(window.doc(window.db, 'reservations', reservationId));
+        alert('Réservation supprimée avec succès !');
+        loadAdminReservations(); // Reload the list
+
+    } catch (error) {
+        console.error('Error deleting reservation:', error);
+        alert('Erreur lors de la suppression de la réservation.');
+    }
+}
+
+// Setup Add Dish Form
+function setupAddDishForm() {
+    const addDishForm = document.getElementById('addDishForm');
+    if (addDishForm) {
+        addDishForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(addDishForm);
+            const dishData = Object.fromEntries(formData);
+
+            if (!window.db) {
+                alert('Connexion Firebase requise pour ajouter des plats.');
+                return;
+            }
+
+            try {
+                await window.addDoc(window.collection(window.db, 'menu'), {
+                    ...dishData,
+                    price: parseFloat(dishData.price),
+                    createdAt: window.serverTimestamp()
+                });
+
+                alert('Plat ajouté avec succès !');
+                addDishForm.reset();
+                loadCurrentMenu(); // Reload menu
+
+            } catch (error) {
+                console.error('Error adding dish:', error);
+                alert('Erreur lors de l\'ajout du plat.');
+            }
+        });
+    }
+}
+
+// Load Current Menu for Admin
+async function loadCurrentMenu() {
+    const container = document.getElementById('current-menu-container');
+
+    if (!window.db) {
+        container.innerHTML = '<p>Connexion Firebase requise pour charger le menu.</p>';
+        return;
+    }
+
+    try {
+        const querySnapshot = await window.getDocs(window.collection(window.db, 'menu'));
+        const menuItems = [];
+
+        querySnapshot.forEach((doc) => {
+            menuItems.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        if (menuItems.length === 0) {
+            container.innerHTML = '<p>Aucun plat dans le menu.</p>';
+            return;
+        }
+
+        // Group by category
+        const menuByCategory = {
+            antipasti: menuItems.filter(item => item.category === 'antipasti'),
+            pates: menuItems.filter(item => item.category === 'pates'),
+            pizzas: menuItems.filter(item => item.category === 'pizzas')
+        };
+
+        container.innerHTML = '';
+
+        Object.keys(menuByCategory).forEach(category => {
+            if (menuByCategory[category].length > 0) {
+                container.innerHTML += `<h4>${category.charAt(0).toUpperCase() + category.slice(1)}</h4>`;
+                menuByCategory[category].forEach(item => {
+                    container.innerHTML += `
+                        <div class="admin-menu-item">
+                            <div class="menu-item-info">
+                                <h5>${item.name}</h5>
+                                <p>${item.description}</p>
+                                <span class="price">${item.price}€</span>
+                            </div>
+                            <div class="menu-item-actions">
+                                <button class="btn-edit" onclick="editDish('${item.id}')">Modifier</button>
+                                <button class="btn-delete" onclick="deleteDish('${item.id}')">Supprimer</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        });
+
+    } catch (error) {
+        console.error('Error loading menu:', error);
+        container.innerHTML = '<p>Erreur lors du chargement du menu.</p>';
+    }
+}
+
+// Edit Dish (placeholder for now)
+function editDish(dishId) {
+    alert('Fonction de modification à implémenter. ID du plat: ' + dishId);
+}
+
+// Delete Dish
+async function deleteDish(dishId) {
+    if (!window.db) return;
+
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce plat ?')) return;
+
+    try {
+        await window.deleteDoc(window.doc(window.db, 'menu', dishId));
+        alert('Plat supprimé avec succès !');
+        loadCurrentMenu(); // Reload menu
+
+    } catch (error) {
+        console.error('Error deleting dish:', error);
+        alert('Erreur lors de la suppression du plat.');
     }
 }
 

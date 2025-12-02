@@ -22,6 +22,7 @@
         <button class="nav-btn active" data-section="reservations">Réservations</button>
         <button class="nav-btn" data-section="menu">Menu</button>
         <button class="nav-btn" data-section="contact">Contact</button>
+        <button class="nav-btn" data-section="admin">Admin</button>
     </nav>
 
     <main class="app-main">
@@ -118,6 +119,64 @@
                 <p>📍 123 Rue de la République, 75001 Paris</p>
                 <p>🕐 Lundi - Vendredi: 12h - 14h30, 19h - 22h30</p>
                 <p>🕐 Samedi - Dimanche: 12h - 15h, 19h - 23h</p>
+            </div>
+        </section>
+
+        <section id="admin-section" class="section">
+            <h2>Administration</h2>
+
+            <div class="admin-tabs">
+                <button class="admin-tab-btn active" data-admin-tab="reservations">Gérer Réservations</button>
+                <button class="admin-tab-btn" data-admin-tab="menu">Gérer Menu</button>
+            </div>
+
+            <div id="admin-reservations-tab" class="admin-tab-content active">
+                <h3>Réservations à Gérer</h3>
+                <div id="admin-reservations-container">
+                    <p>Chargement des réservations...</p>
+                </div>
+            </div>
+
+            <div id="admin-menu-tab" class="admin-tab-content">
+                <h3>Gérer le Menu</h3>
+
+                <div class="menu-management">
+                    <h4>Ajouter un Plat</h4>
+                    <form id="addDishForm">
+                        <div class="form-group">
+                            <label for="dishCategory">Catégorie</label>
+                            <select id="dishCategory" name="category" required>
+                                <option value="antipasti">Antipasti</option>
+                                <option value="pates">Pâtes</option>
+                                <option value="pizzas">Pizzas</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dishName">Nom du Plat</label>
+                            <input type="text" id="dishName" name="name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dishDescription">Description</label>
+                            <textarea id="dishDescription" name="description" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dishPrice">Prix (€)</label>
+                            <input type="number" id="dishPrice" name="price" step="0.01" required>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Ajouter le Plat</button>
+                    </form>
+                </div>
+
+                <div class="menu-display">
+                    <h4>Plats Actuels</h4>
+                    <div id="current-menu-container">
+                        <p>Chargement du menu...</p>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
