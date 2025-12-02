@@ -94,58 +94,109 @@
         <div id="lightbox-caption" class="lightbox-caption"></div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBBpCMxDQZH9ZPX3D-e-wE2Ik8W8KgyKZg",
+            authDomain: "trattoria-mobile-app.firebaseapp.com",
+            projectId: "trattoria-mobile-app",
+            storageBucket: "trattoria-mobile-app.firebasestorage.app",
+            messagingSenderId: "626471039218",
+            appId: "1:626471039218:web:55a24bc71d25f44d8c206b"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        window.db = getFirestore(app);
+        window.collection = collection;
+        window.getDocs = getDocs;
+    </script>
+
     <script src="script.js"></script>
     <script>
-        // Load menu from localStorage
-        function loadMenu() {
-            const menuItems = JSON.parse(localStorage.getItem('menuItems') || '{}');
+        // Load menu from Firebase
+        async function loadMenu() {
             const menuContent = document.getElementById('menuContent');
 
-            const categories = {
-                antipasti: 'Antipasti',
-                pates: 'Pâtes Fraîches',
-                pizzas: 'Pizzas',
-                desserts: 'Desserts'
-            };
+            try {
+                const querySnapshot = await window.getDocs(window.collection(window.db, 'menu'));
+                const menuItems = [];
 
-            let html = '';
-
-            for (const [categoryKey, categoryName] of Object.entries(categories)) {
-                const items = menuItems[categoryKey] || [];
-
-                if (items.length > 0) {
-                    html += `
-                        <section class="menu-section">
-                            <div class="container">
-                                <h2>${categoryName}</h2>
-                                <div class="menu-grid">
-                    `;
-
-                    items.forEach(item => {
-                        html += `
-                            <div class="menu-item">
-                                <div class="menu-item-content">
-                                    <h3>${item.name}</h3>
-                                    <p>${item.description}</p>
-                                    <span class="price">${item.price}</span>
-                                </div>
-                                <img src="${item.image}" alt="${item.name}">
-                            </div>
-                        `;
+                querySnapshot.forEach((doc) => {
+                    menuItems.push({
+                        id: doc.id,
+                        ...doc.data()
                     });
+                });
 
-                    html += `
+                // Group by category
+                const menuByCategory = {
+                    antipasti: menuItems.filter(item => item.category === 'antipasti'),
+                    pates: menuItems.filter(item => item.category === 'pates'),
+                    pizzas: menuItems.filter(item => item.category === 'pizzas'),
+                    desserts: menuItems.filter(item => item.category === 'desserts')
+                };
+
+                const categories = {
+                    antipasti: 'Antipasti',
+                    pates: 'Pâtes Fraîches',
+                    pizzas: 'Pizzas',
+                    desserts: 'Desserts'
+                };
+
+                let html = '';
+
+                for (const [categoryKey, categoryName] of Object.entries(categories)) {
+                    const items = menuByCategory[categoryKey] || [];
+
+                    if (items.length > 0) {
+                        html += `
+                            <section class="menu-section">
+                                <div class="container">
+                                    <h2>${categoryName}</h2>
+                                    <div class="menu-grid">
+                        `;
+
+                        items.forEach(item => {
+                            // Use a default image if none provided
+                            const imageUrl = item.image || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300';
+                            html += `
+                                <div class="menu-item">
+                                    <div class="menu-item-content">
+                                        <h3>${item.name}</h3>
+                                        <p>${item.description}</p>
+                                        <span class="price">${item.price}€</span>
+                                    </div>
+                                    <img src="${imageUrl}" alt="${item.name}">
                                 </div>
-                            </div>
-                        </section>
-                    `;
+                            `;
+                        });
+
+                        html += `
+                                    </div>
+                                </div>
+                            </section>
+                        `;
+                    }
                 }
+
+                if (html === '') {
+                    html = '<div class="container"><p style="text-align: center; padding: 2rem;">Le menu est en cours de préparation. Revenez bientôt !</p></div>';
+                }
+
+                menuContent.innerHTML = html;
+
+                // Re-initialize lightbox after loading menu
+                initializeLightbox();
+
+            } catch (error) {
+                console.error('Error loading menu:', error);
+                menuContent.innerHTML = '<div class="container"><p style="text-align: center; padding: 2rem;">Erreur lors du chargement du menu. Veuillez réessayer plus tard.</p></div>';
             }
-
-            menuContent.innerHTML = html;
-
-            // Re-initialize lightbox after loading menu
-            initializeLightbox();
         }
 
         // Lightbox functionality for menu images

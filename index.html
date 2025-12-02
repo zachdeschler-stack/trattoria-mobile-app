@@ -131,30 +131,71 @@
 
     <button id="chatbot-toggle" class="chatbot-toggle">💬</button>
 
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBBpCMxDQZH9ZPX3D-e-wE2Ik8W8KgyKZg",
+            authDomain: "trattoria-mobile-app.firebaseapp.com",
+            projectId: "trattoria-mobile-app",
+            storageBucket: "trattoria-mobile-app.firebasestorage.app",
+            messagingSenderId: "626471039218",
+            appId: "1:626471039218:web:55a24bc71d25f44d8c206b"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        window.db = getFirestore(app);
+        window.collection = collection;
+        window.getDocs = getDocs;
+    </script>
+
     <script src="script.js"></script>
     <script>
-        // Load specialties from localStorage
-        function loadSpecialties() {
-            const specialties = JSON.parse(localStorage.getItem('specialties') || '[]');
+        // Load specialties from Firebase
+        async function loadSpecialties() {
             const specialtiesGrid = document.getElementById('specialtiesGrid');
 
-            if (specialties.length === 0) {
-                specialtiesGrid.innerHTML = '<p style="text-align: center; padding: 2rem;">Aucune spécialité disponible pour le moment.</p>';
-                return;
+            try {
+                const querySnapshot = await window.getDocs(window.collection(window.db, 'menu'));
+                const menuItems = [];
+
+                querySnapshot.forEach((doc) => {
+                    menuItems.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                // Get first 3 items as specialties (or filter by a 'specialty' field if you add one)
+                const specialties = menuItems.slice(0, 3);
+
+                if (specialties.length === 0) {
+                    specialtiesGrid.innerHTML = '<p style="text-align: center; padding: 2rem;">Aucune spécialité disponible pour le moment.</p>';
+                    return;
+                }
+
+                let html = '';
+                specialties.forEach(specialty => {
+                    const imageUrl = specialty.image || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400';
+                    html += `
+                        <div class="specialty-card">
+                            <img src="${imageUrl}" alt="${specialty.name}">
+                            <h3>${specialty.name}</h3>
+                            <p>${specialty.description}</p>
+                        </div>
+                    `;
+                });
+
+                specialtiesGrid.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading specialties:', error);
+                specialtiesGrid.innerHTML = '<p style="text-align: center; padding: 2rem;">Erreur lors du chargement des spécialités.</p>';
             }
-
-            let html = '';
-            specialties.forEach(specialty => {
-                html += `
-                    <div class="specialty-card">
-                        <img src="${specialty.image}" alt="${specialty.name}">
-                        <h3>${specialty.name}</h3>
-                        <p>${specialty.description}</p>
-                    </div>
-                `;
-            });
-
-            specialtiesGrid.innerHTML = html;
         }
 
         // Load specialties when page loads
