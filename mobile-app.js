@@ -442,13 +442,13 @@ function setupAddDishForm() {
                     createdAt: window.serverTimestamp()
                 });
 
-                alert('Plat ajouté avec succès !');
+                alert('✅ Plat ajouté avec succès !\n\n📱 Le plat apparaît maintenant dans votre app mobile\n🌐 Le plat sera visible sur votre site web après actualisation de la page\n\n💡 Conseil : Actualisez https://zachdeschler-stack.github.io/trattoria-mobile-app/menu.html pour voir le changement');
                 addDishForm.reset();
                 loadCurrentMenu(); // Reload menu
 
             } catch (error) {
                 console.error('Error adding dish:', error);
-                alert('Erreur lors de l\'ajout du plat.');
+                alert('❌ Erreur lors de l\'ajout du plat.');
             }
         });
     }
@@ -515,9 +515,105 @@ async function loadCurrentMenu() {
     }
 }
 
-// Edit Dish (placeholder for now)
-function editDish(dishId) {
-    alert('Fonction de modification à implémenter. ID du plat: ' + dishId);
+// Edit Dish
+async function editDish(dishId) {
+    if (!window.db) return;
+
+    try {
+        // Get the dish data
+        const docRef = window.doc(window.db, 'menu', dishId);
+        const docSnap = await window.getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const dish = docSnap.data();
+
+            // Create edit modal
+            const modal = document.createElement('div');
+            modal.className = 'edit-modal';
+            modal.innerHTML = `
+                <div class="edit-modal-content">
+                    <h3>Modifier le Plat</h3>
+                    <form id="editDishForm">
+                        <div class="form-group">
+                            <label for="editCategory">Catégorie</label>
+                            <select id="editCategory" name="category" required>
+                                <option value="antipasti" ${dish.category === 'antipasti' ? 'selected' : ''}>Antipasti</option>
+                                <option value="pates" ${dish.category === 'pates' ? 'selected' : ''}>Pâtes</option>
+                                <option value="pizzas" ${dish.category === 'pizzas' ? 'selected' : ''}>Pizzas</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editName">Nom du Plat</label>
+                            <input type="text" id="editName" name="name" value="${dish.name}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editDescription">Description</label>
+                            <textarea id="editDescription" name="description" required>${dish.description}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editPrice">Prix (€)</label>
+                            <input type="number" id="editPrice" name="price" value="${dish.price}" step="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editImage">URL de l'Image (optionnel)</label>
+                            <input type="url" id="editImage" name="image" value="${dish.image || ''}" placeholder="https://...">
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-cancel" onclick="closeEditModal()">Annuler</button>
+                            <button type="submit" class="btn-primary">Modifier</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Handle form submission
+            const editForm = document.getElementById('editDishForm');
+            editForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(editForm);
+                const updatedDishData = Object.fromEntries(formData);
+
+                try {
+                    await window.updateDoc(docRef, {
+                        ...updatedDishData,
+                        price: parseFloat(updatedDishData.price),
+                        updatedAt: window.serverTimestamp()
+                    });
+
+                    alert('✅ Plat modifié avec succès !\n\n📱 Le plat est mis à jour dans votre app mobile\n🌐 Le plat sera mis à jour sur votre site web après actualisation de la page');
+                    closeEditModal();
+                    loadCurrentMenu(); // Reload menu
+
+                } catch (error) {
+                    console.error('Error updating dish:', error);
+                    alert('❌ Erreur lors de la modification du plat.');
+                }
+            });
+
+        } else {
+            alert('Plat non trouvé.');
+        }
+
+    } catch (error) {
+        console.error('Error getting dish:', error);
+        alert('Erreur lors du chargement du plat.');
+    }
+}
+
+// Close edit modal
+function closeEditModal() {
+    const modal = document.querySelector('.edit-modal');
+    if (modal) {
+        modal.remove();
+    }
 }
 
 // Delete Dish
