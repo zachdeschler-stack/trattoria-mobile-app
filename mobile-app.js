@@ -66,7 +66,7 @@ function setupNavigation() {
 function setupReservationForm() {
     const reservationForm = document.getElementById('reservationForm');
     if (reservationForm) {
-        reservationForm.addEventListener('submit', (e) => {
+        reservationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const formData = new FormData(reservationForm);
@@ -78,21 +78,43 @@ function setupReservationForm() {
             reservationData.timestamp = new Date().toISOString();
             reservationData.synced = navigator.onLine;
 
-            // Store reservation locally
-            const reservations = JSON.parse(localStorage.getItem('reservations') || '[]');
-            reservations.push(reservationData);
-            localStorage.setItem('reservations', JSON.stringify(reservations));
+            try {
+                if (navigator.onLine && window.db) {
+                    // Save to Firebase if online
+                    const docRef = await window.addDoc(window.collection(window.db, 'reservations'), {
+                        ...reservationData,
+                        timestamp: window.serverTimestamp(),
+                        synced: true
+                    });
+                    reservationData.firebaseId = docRef.id;
+                    console.log('Reservation saved to Firebase with ID:', docRef.id);
+                } else {
+                    // Store offline if no connection or Firebase not loaded
+                    const offlineReservations = JSON.parse(localStorage.getItem('offlineReservations') || '[]');
+                    offlineReservations.push(reservationData);
+                    localStorage.setItem('offlineReservations', JSON.stringify(offlineReservations));
+                }
 
-            // Show success message
-            alert(navigator.onLine ?
-                'Votre réservation a été enregistrée et synchronisée !' :
-                'Votre réservation a été enregistrée hors ligne. Elle sera synchronisée quand vous serez en ligne.');
+                // Always store locally for display
+                const reservations = JSON.parse(localStorage.getItem('reservations') || '[]');
+                reservations.push(reservationData);
+                localStorage.setItem('reservations', JSON.stringify(reservations));
 
-            // Reset form
-            reservationForm.reset();
+                // Show success message
+                alert(navigator.onLine ?
+                    'Votre réservation a été enregistrée et synchronisée !' :
+                    'Votre réservation a été enregistrée hors ligne. Elle sera synchronisée quand vous serez en ligne.');
 
-            // Reload reservations list
-            loadReservations();
+                // Reset form
+                reservationForm.reset();
+
+                // Reload reservations list
+                loadReservations();
+
+            } catch (error) {
+                console.error('Error saving reservation:', error);
+                alert('Erreur lors de la sauvegarde. Veuillez réessayer.');
+            }
         });
     }
 }
@@ -198,24 +220,56 @@ function displayMenu(menuData) {
 }
 
 // Sync Reservations when online
-function syncReservations() {
-    if (!navigator.onLine) return;
+async function syncReservations() {
+    if (!navigator.onLine || !window.db) return;
 
-    const reservations = JSON.parse(localStorage.getItem('reservations') || '[]');
-    const unsyncedReservations = reservations.filter(r => !r.synced);
+    const offlineReservations = JSON.parse(localStorage.getItem('offlineReservations') || '[]');
 
-    if (unsyncedReservations.length === 0) return;
+    if (offlineReservations.length === 0) return;
 
-    // In a real app, this would send data to server
-    // For now, we'll just mark them as synced
-    unsyncedReservations.forEach(reservation => {
-        reservation.synced = true;
-    });
+    console.log(`Synchronisation de ${offlineReservations.length} réservations...`);
 
-    localStorage.setItem('reservations', JSON.stringify(reservations));
-    loadReservations();
+    let syncedCount = 0;
 
-    console.log(`${unsyncedReservations.length} réservations synchronisées`);
+    for (const reservation of offlineReservations) {
+        try {
+            // Save to Firebase
+            const docRef = await window.addDoc(window.collection(window.db, 'reservations'), {
+                ...reservation,
+                timestamp: window.serverTimestamp(),
+                synced: true
+            });
+
+            // Update local storage with Firebase ID
+            reservation.firebaseId = docRef.id;
+            reservation.synced = true;
+
+            // Move to main reservations list
+            const reservations = JSON.parse(localStorage.getItem('reservations') || '[]');
+            reservations.push(reservation);
+            localStorage.setItem('reservations', JSON.stringify(reservations));
+
+            // Remove from offline storage
+            const index = offlineReservations.indexOf(reservation);
+            offlineReservations.splice(index, 1);
+
+            syncedCount++;
+            console.log('Réservation synchronisée:', docRef.id);
+
+        } catch (error) {
+            console.error('Erreur lors de la synchronisation:', error);
+        }
+    }
+
+    // Save remaining offline reservations
+    localStorage.setItem('offlineReservations', JSON.stringify(offlineReservations));
+
+    if (syncedCount > 0) {
+        loadReservations();
+        alert(`${syncedCount} réservation(s) synchronisée(s) avec succès !`);
+    }
+
+    console.log(`${syncedCount} réservations synchronisées`);
 }
 
 // Utility Functions
