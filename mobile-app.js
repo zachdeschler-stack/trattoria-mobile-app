@@ -517,7 +517,12 @@ async function loadCurrentMenu() {
 
 // Edit Dish
 async function editDish(dishId) {
-    if (!window.db) return;
+    console.log('editDish called with ID:', dishId);
+
+    if (!window.db) {
+        alert('Connexion Firebase requise pour modifier les plats.');
+        return;
+    }
 
     try {
         // Get the dish data
@@ -526,6 +531,7 @@ async function editDish(dishId) {
 
         if (docSnap.exists()) {
             const dish = docSnap.data();
+            console.log('Dish data loaded:', dish);
 
             // Create edit modal
             const modal = document.createElement('div');
@@ -572,11 +578,20 @@ async function editDish(dishId) {
             `;
 
             document.body.appendChild(modal);
+            console.log('Modal appended to body');
+
+            // Add click outside to close modal
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeEditModal();
+                }
+            });
 
             // Handle form submission
             const editForm = document.getElementById('editDishForm');
             editForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                console.log('Form submitted');
 
                 const formData = new FormData(editForm);
                 const updatedDishData = Object.fromEntries(formData);
